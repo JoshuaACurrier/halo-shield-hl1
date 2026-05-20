@@ -372,6 +372,13 @@ void CHudAmmo::Think()
 	if (!gpActiveSel)
 		return;
 
+	// Halo Shield: with fast switch on, the menu's "press +attack to confirm"
+	// path must not consume the click. The slot/scroll handlers already did
+	// the ServerCmd, so gpActiveSel is just tracking cycling state and the
+	// player's next left-click should fire the weapon, not be swallowed here.
+	if (CVAR_GET_FLOAT("hud_fastswitch") != 0)
+		return;
+
 	// has the player selected one?
 	if ((gHUD.m_iKeyBits & IN_ATTACK) != 0)
 	{
