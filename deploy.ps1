@@ -23,11 +23,12 @@ if ($Build) {
 }
 
 # Note: filecopy.bat (post-build step in vcxproj) already deploys hl.dll + client.dll
-# to $target\dlls and $target\cl_dlls. This script only handles non-DLL mod assets.
+# to $target\dlls and $target\cl_dlls. This script syncs everything else under mod/
+# (liblist.gam, autoexec.cfg, gfx/shell/kb_act.lst, sounds, sprites, etc.) into
+# the installed mod folder.
 
 New-Item -ItemType Directory -Force -Path $target | Out-Null
-
-Copy-Item -Force (Join-Path $repoRoot 'mod\liblist.gam') (Join-Path $target 'liblist.gam')
+Copy-Item -Recurse -Force (Join-Path $repoRoot 'mod\*') $target
 
 Write-Host "Deployed mod assets to $target"
 Write-Host "If you ran -Build, DLLs were also copied via filecopy.bat post-build step."
