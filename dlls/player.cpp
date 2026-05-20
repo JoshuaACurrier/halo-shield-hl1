@@ -108,6 +108,9 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_fInitHUD, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_tbdPrev, FIELD_TIME),
 
+		DEFINE_FIELD(CBasePlayer, m_flShieldLastDamageTime, FIELD_TIME),
+		DEFINE_FIELD(CBasePlayer, m_bShieldBroken, FIELD_BOOLEAN),
+
 		DEFINE_FIELD(CBasePlayer, m_pTank, FIELD_EHANDLE),
 		DEFINE_FIELD(CBasePlayer, m_hViewEntity, FIELD_EHANDLE),
 		DEFINE_FIELD(CBasePlayer, m_iHideHUD, FIELD_INTEGER),
@@ -386,27 +389,37 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 	// keep track of amount of damage last sustained
 	m_lastDamageAmount = flDamage;
 
-	// Armor.
-	if (0 != pev->armorvalue && (bitsDamageType & (DMG_FALL | DMG_DROWN)) == 0) // armor doesn't protect against fall or drown damage!
+	// Halo-style regenerating shield. The HEV "armor" slot is repurposed as the
+	// shield value so save/restore and the existing HUD networking come along
+	// for free. Damage hits shield first 1:1 with no ratio falloff. When the
+	// shield reaches zero on this hit it's marked broken so the longer
+	// broken-regen delay applies (see PostThink). Fall and drown damage bypass
+	// the shield, matching vanilla armor behavior.
+	if (HasSuit() && (bitsDamageType & (DMG_FALL | DMG_DROWN)) == 0)
 	{
-		float flNew = flDamage * flRatio;
+		const float flMax = shield_max.value;
+		if (pev->armorvalue > flMax)
+			pev->armorvalue = flMax;
 
-		float flArmor;
-
-		flArmor = (flDamage - flNew) * flBonus;
-
-		// Does this use more armor than we have?
-		if (flArmor > pev->armorvalue)
+		if (pev->armorvalue > 0.0f)
 		{
-			flArmor = pev->armorvalue;
-			flArmor *= (1 / flBonus);
-			flNew = flDamage - flArmor;
-			pev->armorvalue = 0;
+			if (flDamage <= pev->armorvalue)
+			{
+				pev->armorvalue -= flDamage;
+				flDamage = 0.0f;
+			}
+			else
+			{
+				flDamage -= pev->armorvalue;
+				pev->armorvalue = 0.0f;
+				if (!m_bShieldBroken)
+				{
+					m_bShieldBroken = true;
+					EMIT_SOUND(ENT(pev), CHAN_ITEM, "weapons/electro4.wav", 1, ATTN_NORM);
+				}
+			}
 		}
-		else
-			pev->armorvalue -= flArmor;
-
-		flDamage = flNew;
+		m_flShieldLastDamageTime = gpGlobals->time;
 	}
 
 	// this cast to INT is critical!!! If a player ends up with 0.5 health, the engine will get that
@@ -2629,6 +2642,28 @@ void CBasePlayer::PostThink()
 	if (!IsAlive())
 		goto pt_end;
 
+	// Halo-style shield regeneration tick. Only runs when the HEV suit is
+	// equipped (pre-suit chapters have no HUD and no shield). After a regen
+	// delay since the last hit, the shield refills toward shield_max. A fully
+	// broken shield uses the longer broken-regen delay.
+	if (HasSuit())
+	{
+		const float flMax = shield_max.value;
+		if (pev->armorvalue < flMax)
+		{
+			const float flDelay = m_bShieldBroken ? shield_regen_delay_broken.value : shield_regen_delay.value;
+			if ((gpGlobals->time - m_flShieldLastDamageTime) >= flDelay)
+			{
+				pev->armorvalue += shield_regen_rate.value * gpGlobals->frametime;
+				if (pev->armorvalue >= flMax)
+				{
+					pev->armorvalue = flMax;
+					m_bShieldBroken = false;
+				}
+			}
+		}
+	}
+
 	// Handle Tank controlling
 	if (m_pTank != NULL)
 	{ // if they've moved too far from the gun,  or selected a weapon, unuse the gun
@@ -2929,6 +2964,8 @@ void CBasePlayer::Spawn()
 	pev->classname = MAKE_STRING("player");
 	pev->health = 100;
 	pev->armorvalue = 0;
+	m_flShieldLastDamageTime = 0.0f;
+	m_bShieldBroken = false;
 	pev->takedamage = DAMAGE_AIM;
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_WALK;

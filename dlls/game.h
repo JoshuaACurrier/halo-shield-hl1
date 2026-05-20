@@ -45,6 +45,12 @@ extern cvar_t sv_allowbunnyhopping;
 
 extern cvar_t sv_busters;
 
+// Halo-style regenerating shield
+extern cvar_t shield_max;
+extern cvar_t shield_regen_delay;
+extern cvar_t shield_regen_delay_broken;
+extern cvar_t shield_regen_rate;
+
 // Engine Cvars
 inline cvar_t* g_psv_gravity;
 inline cvar_t* g_psv_aim;

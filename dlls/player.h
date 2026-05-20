@@ -145,6 +145,11 @@ public:
 	int m_lastDamageAmount;						 // Last damage taken
 	float m_tbdPrev;							 // Time-based damage timer
 
+	// Halo-style regenerating shield. Storage reuses pev->armorvalue so save/restore
+	// and HUD networking come along for free; the two members below track regen timing.
+	float m_flShieldLastDamageTime = 0.0f;       // gpGlobals->time of most recent hit
+	bool  m_bShieldBroken = false;               // true once shield hit 0 this life; cleared when fully recharged
+
 	float m_flgeigerRange; // range to nearest radiation source
 	float m_flgeigerDelay; // delay per update of range msg to client
 	int m_igeigerRangePrev;

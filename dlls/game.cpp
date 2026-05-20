@@ -47,6 +47,12 @@ cvar_t mp_chattime = {"mp_chattime", "10", FCVAR_SERVER};
 
 cvar_t sv_allowbunnyhopping = {"sv_allowbunnyhopping", "0", FCVAR_SERVER};
 
+// Halo-style regenerating shield
+cvar_t shield_max                = {"shield_max", "100"};
+cvar_t shield_regen_delay        = {"shield_regen_delay", "5.0"};
+cvar_t shield_regen_delay_broken = {"shield_regen_delay_broken", "10.0"};
+cvar_t shield_regen_rate         = {"shield_regen_rate", "33.0"};
+
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
 cvar_t sk_agrunt_health1 = {"sk_agrunt_health1", "0"};
@@ -522,6 +528,11 @@ void GameDLLInit()
 	CVAR_REGISTER(&sv_busters);
 
 	CVAR_REGISTER(&sv_allowbunnyhopping);
+
+	CVAR_REGISTER(&shield_max);
+	CVAR_REGISTER(&shield_regen_delay);
+	CVAR_REGISTER(&shield_regen_delay_broken);
+	CVAR_REGISTER(&shield_regen_rate);
 
 	// REGISTER CVARS FOR SKILL LEVEL STUFF
 	// Agrunt
