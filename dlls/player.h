@@ -152,8 +152,11 @@ public:
 
 	// Aim-down-sights state. m_flAdsSavedMaxSpeed holds the pre-ADS maxspeed
 	// so EndAds can restore it without depending on any global default.
+	// m_flAdsAnimFOV is the smoothly-interpolated FOV the ADS tick drives toward
+	// (ads_fov when ADS is on, 90 otherwise); m_iFOV is set from this each frame.
 	bool  m_bAds = false;
 	float m_flAdsSavedMaxSpeed = 0.0f;
+	float m_flAdsAnimFOV = 90.0f;
 
 	void BeginAds();
 	void EndAds();

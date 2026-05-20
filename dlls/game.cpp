@@ -73,6 +73,7 @@ cvar_t sk_shield_regen_rate3         = {"sk_shield_regen_rate3", "25.0"};
 // slows down with the zoom-in.
 cvar_t ads_fov         = {"ads_fov", "60"};
 cvar_t ads_speed_scale = {"ads_speed_scale", "0.6"};
+cvar_t ads_zoom_speed  = {"ads_zoom_speed", "200"}; // FOV units / sec; tune for snappier vs smoother
 
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
@@ -570,6 +571,7 @@ void GameDLLInit()
 
 	CVAR_REGISTER(&ads_fov);
 	CVAR_REGISTER(&ads_speed_scale);
+	CVAR_REGISTER(&ads_zoom_speed);
 
 	// REGISTER CVARS FOR SKILL LEVEL STUFF
 	// Agrunt

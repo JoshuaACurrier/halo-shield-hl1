@@ -113,6 +113,7 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 
 		DEFINE_FIELD(CBasePlayer, m_bAds, FIELD_BOOLEAN),
 		DEFINE_FIELD(CBasePlayer, m_flAdsSavedMaxSpeed, FIELD_FLOAT),
+		DEFINE_FIELD(CBasePlayer, m_flAdsAnimFOV, FIELD_FLOAT),
 
 		DEFINE_FIELD(CBasePlayer, m_pTank, FIELD_EHANDLE),
 		DEFINE_FIELD(CBasePlayer, m_hViewEntity, FIELD_EHANDLE),
@@ -2680,6 +2681,21 @@ void CBasePlayer::PostThink()
 	if (m_bAds && !WeaponAllowsAds())
 		EndAds();
 
+	// Smoothly drive m_iFOV toward the current ADS target. Animating server-side
+	// avoids the snap that comes from setting m_iFOV directly in BeginAds/EndAds.
+	{
+		const float target = m_bAds ? ads_fov.value : 90.0f;
+		if (m_flAdsAnimFOV != target)
+		{
+			const float step = ads_zoom_speed.value * gpGlobals->frametime;
+			if (m_flAdsAnimFOV < target)
+				m_flAdsAnimFOV = V_min(m_flAdsAnimFOV + step, target);
+			else
+				m_flAdsAnimFOV = V_max(m_flAdsAnimFOV - step, target);
+			m_iFOV = (int)m_flAdsAnimFOV;
+		}
+	}
+
 	// Handle Tank controlling
 	if (m_pTank != NULL)
 	{ // if they've moved too far from the gun,  or selected a weapon, unuse the gun
@@ -2984,6 +3000,7 @@ void CBasePlayer::Spawn()
 	m_bShieldBroken = false;
 	m_bAds = false;
 	m_flAdsSavedMaxSpeed = 0.0f;
+	m_flAdsAnimFOV = 90.0f;
 	pev->takedamage = DAMAGE_AIM;
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_WALK;
@@ -5220,7 +5237,7 @@ void CBasePlayer::BeginAds()
 	m_bAds = true;
 	m_flAdsSavedMaxSpeed = pev->maxspeed;
 	pev->maxspeed = pev->maxspeed * ads_speed_scale.value;
-	m_iFOV = (int)ads_fov.value;
+	// FOV is animated each frame in PostThink; just flip the state here.
 }
 
 void CBasePlayer::EndAds()
@@ -5234,5 +5251,5 @@ void CBasePlayer::EndAds()
 		pev->maxspeed = m_flAdsSavedMaxSpeed;
 		m_flAdsSavedMaxSpeed = 0.0f;
 	}
-	m_iFOV = 0; // 0 = engine default (default_fov, normally 90)
+	// FOV animates back to 90 in PostThink.
 }

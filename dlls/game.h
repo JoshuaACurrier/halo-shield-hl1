@@ -69,6 +69,7 @@ extern cvar_t sk_shield_regen_rate3;
 // Aim-down-sights (right-mouse focus): tightens FOV and slows movement on guns.
 extern cvar_t ads_fov;
 extern cvar_t ads_speed_scale;
+extern cvar_t ads_zoom_speed;
 
 // Engine Cvars
 inline cvar_t* g_psv_gravity;
