@@ -68,6 +68,12 @@ cvar_t sk_shield_regen_rate1         = {"sk_shield_regen_rate1", "50.0"};
 cvar_t sk_shield_regen_rate2         = {"sk_shield_regen_rate2", "33.0"};
 cvar_t sk_shield_regen_rate3         = {"sk_shield_regen_rate3", "25.0"};
 
+// Aim-down-sights tuning. ads_fov is the focused FOV (default_fov is 90),
+// ads_speed_scale multiplies pev->maxspeed while ADS is active so movement
+// slows down with the zoom-in.
+cvar_t ads_fov         = {"ads_fov", "60"};
+cvar_t ads_speed_scale = {"ads_speed_scale", "0.6"};
+
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
 cvar_t sk_agrunt_health1 = {"sk_agrunt_health1", "0"};
@@ -561,6 +567,9 @@ void GameDLLInit()
 	CVAR_REGISTER(&sk_shield_regen_rate1);
 	CVAR_REGISTER(&sk_shield_regen_rate2);
 	CVAR_REGISTER(&sk_shield_regen_rate3);
+
+	CVAR_REGISTER(&ads_fov);
+	CVAR_REGISTER(&ads_speed_scale);
 
 	// REGISTER CVARS FOR SKILL LEVEL STUFF
 	// Agrunt

@@ -150,6 +150,15 @@ public:
 	float m_flShieldLastDamageTime = 0.0f;       // gpGlobals->time of most recent hit
 	bool  m_bShieldBroken = false;               // true once shield hit 0 this life; cleared when fully recharged
 
+	// Aim-down-sights state. m_flAdsSavedMaxSpeed holds the pre-ADS maxspeed
+	// so EndAds can restore it without depending on any global default.
+	bool  m_bAds = false;
+	float m_flAdsSavedMaxSpeed = 0.0f;
+
+	void BeginAds();
+	void EndAds();
+	bool WeaponAllowsAds() const;
+
 	float m_flgeigerRange; // range to nearest radiation source
 	float m_flgeigerDelay; // delay per update of range msg to client
 	int m_igeigerRangePrev;

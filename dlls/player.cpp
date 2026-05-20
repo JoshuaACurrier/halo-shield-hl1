@@ -111,6 +111,9 @@ TYPEDESCRIPTION CBasePlayer::m_playerSaveData[] =
 		DEFINE_FIELD(CBasePlayer, m_flShieldLastDamageTime, FIELD_TIME),
 		DEFINE_FIELD(CBasePlayer, m_bShieldBroken, FIELD_BOOLEAN),
 
+		DEFINE_FIELD(CBasePlayer, m_bAds, FIELD_BOOLEAN),
+		DEFINE_FIELD(CBasePlayer, m_flAdsSavedMaxSpeed, FIELD_FLOAT),
+
 		DEFINE_FIELD(CBasePlayer, m_pTank, FIELD_EHANDLE),
 		DEFINE_FIELD(CBasePlayer, m_hViewEntity, FIELD_EHANDLE),
 		DEFINE_FIELD(CBasePlayer, m_iHideHUD, FIELD_INTEGER),
@@ -2670,6 +2673,13 @@ void CBasePlayer::PostThink()
 		}
 	}
 
+	// If the player switches to a weapon that doesn't allow ADS while still
+	// holding the ADS key, clear the state. The engine only forwards key-down
+	// transitions, so without this the player could be stuck in slow-walk FOV
+	// after swapping to the crowbar.
+	if (m_bAds && !WeaponAllowsAds())
+		EndAds();
+
 	// Handle Tank controlling
 	if (m_pTank != NULL)
 	{ // if they've moved too far from the gun,  or selected a weapon, unuse the gun
@@ -2972,6 +2982,8 @@ void CBasePlayer::Spawn()
 	pev->armorvalue = 0;
 	m_flShieldLastDamageTime = 0.0f;
 	m_bShieldBroken = false;
+	m_bAds = false;
+	m_flAdsSavedMaxSpeed = 0.0f;
 	pev->takedamage = DAMAGE_AIM;
 	pev->solid = SOLID_SLIDEBOX;
 	pev->movetype = MOVETYPE_WALK;
@@ -5172,3 +5184,55 @@ void CInfoIntermission::Think()
 }
 
 LINK_ENTITY_TO_CLASS(info_intermission, CInfoIntermission);
+
+//=========================================================
+// Aim-down-sights implementation.
+//=========================================================
+
+bool CBasePlayer::WeaponAllowsAds() const
+{
+	if (!m_pActiveItem)
+		return false;
+
+	const int id = ((CBasePlayerItem*)m_pActiveItem)->m_iId;
+	switch (id)
+	{
+	case WEAPON_CROWBAR:
+	case WEAPON_HANDGRENADE:
+	case WEAPON_TRIPMINE:
+	case WEAPON_SATCHEL:
+	case WEAPON_SNARK:
+		return false;
+	default:
+		return true;
+	}
+}
+
+void CBasePlayer::BeginAds()
+{
+	if (m_bAds)
+		return;
+	if (!HasSuit())
+		return;
+	if (!WeaponAllowsAds())
+		return;
+
+	m_bAds = true;
+	m_flAdsSavedMaxSpeed = pev->maxspeed;
+	pev->maxspeed = pev->maxspeed * ads_speed_scale.value;
+	m_iFOV = (int)ads_fov.value;
+}
+
+void CBasePlayer::EndAds()
+{
+	if (!m_bAds)
+		return;
+
+	m_bAds = false;
+	if (m_flAdsSavedMaxSpeed > 0.0f)
+	{
+		pev->maxspeed = m_flAdsSavedMaxSpeed;
+		m_flAdsSavedMaxSpeed = 0.0f;
+	}
+	m_iFOV = 0; // 0 = engine default (default_fov, normally 90)
+}

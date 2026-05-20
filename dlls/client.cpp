@@ -554,6 +554,14 @@ void ClientCommand(edict_t* pEntity)
 	{
 		player->SelectItem((char*)CMD_ARGV(1));
 	}
+	else if (FStrEq(pcmd, "+ads"))
+	{
+		player->BeginAds();
+	}
+	else if (FStrEq(pcmd, "-ads"))
+	{
+		player->EndAds();
+	}
 	else if (((pstr = strstr(pcmd, "weapon_")) != NULL) && (pstr == pcmd))
 	{
 		player->SelectItem(pcmd);
