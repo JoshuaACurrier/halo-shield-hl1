@@ -367,6 +367,13 @@ void CGameRules::RefreshSkillData()
 	gSkillData.plrStomach = GetSkillCvar("sk_player_stomach");
 	gSkillData.plrLeg = GetSkillCvar("sk_player_leg");
 	gSkillData.plrArm = GetSkillCvar("sk_player_arm");
+
+	// Halo-style shield: copy the active difficulty row into the live cvars
+	// so TakeDamage and PostThink read the right tuning every frame.
+	CVAR_SET_FLOAT("shield_max",                GetSkillCvar("sk_shield_max"));
+	CVAR_SET_FLOAT("shield_regen_delay",        GetSkillCvar("sk_shield_regen_delay"));
+	CVAR_SET_FLOAT("shield_regen_delay_broken", GetSkillCvar("sk_shield_regen_delay_broken"));
+	CVAR_SET_FLOAT("shield_regen_rate",         GetSkillCvar("sk_shield_regen_rate"));
 }
 
 //=========================================================

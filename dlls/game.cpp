@@ -47,11 +47,26 @@ cvar_t mp_chattime = {"mp_chattime", "10", FCVAR_SERVER};
 
 cvar_t sv_allowbunnyhopping = {"sv_allowbunnyhopping", "0", FCVAR_SERVER};
 
-// Halo-style regenerating shield
+// Halo-style regenerating shield (live values, settable via console).
+// Defaults match Normal difficulty; RefreshSkillData overwrites on map load.
 cvar_t shield_max                = {"shield_max", "100"};
 cvar_t shield_regen_delay        = {"shield_regen_delay", "5.0"};
 cvar_t shield_regen_delay_broken = {"shield_regen_delay_broken", "10.0"};
 cvar_t shield_regen_rate         = {"shield_regen_rate", "33.0"};
+
+// Per-difficulty shield tuning (suffix: 1=Easy, 2=Normal/Medium, 3=Hard).
+cvar_t sk_shield_max1                = {"sk_shield_max1", "150"};
+cvar_t sk_shield_max2                = {"sk_shield_max2", "100"};
+cvar_t sk_shield_max3                = {"sk_shield_max3", "75"};
+cvar_t sk_shield_regen_delay1        = {"sk_shield_regen_delay1", "3.0"};
+cvar_t sk_shield_regen_delay2        = {"sk_shield_regen_delay2", "5.0"};
+cvar_t sk_shield_regen_delay3        = {"sk_shield_regen_delay3", "7.0"};
+cvar_t sk_shield_regen_delay_broken1 = {"sk_shield_regen_delay_broken1", "6.0"};
+cvar_t sk_shield_regen_delay_broken2 = {"sk_shield_regen_delay_broken2", "10.0"};
+cvar_t sk_shield_regen_delay_broken3 = {"sk_shield_regen_delay_broken3", "14.0"};
+cvar_t sk_shield_regen_rate1         = {"sk_shield_regen_rate1", "50.0"};
+cvar_t sk_shield_regen_rate2         = {"sk_shield_regen_rate2", "33.0"};
+cvar_t sk_shield_regen_rate3         = {"sk_shield_regen_rate3", "25.0"};
 
 //CVARS FOR SKILL LEVEL SETTINGS
 // Agrunt
@@ -533,6 +548,19 @@ void GameDLLInit()
 	CVAR_REGISTER(&shield_regen_delay);
 	CVAR_REGISTER(&shield_regen_delay_broken);
 	CVAR_REGISTER(&shield_regen_rate);
+
+	CVAR_REGISTER(&sk_shield_max1);
+	CVAR_REGISTER(&sk_shield_max2);
+	CVAR_REGISTER(&sk_shield_max3);
+	CVAR_REGISTER(&sk_shield_regen_delay1);
+	CVAR_REGISTER(&sk_shield_regen_delay2);
+	CVAR_REGISTER(&sk_shield_regen_delay3);
+	CVAR_REGISTER(&sk_shield_regen_delay_broken1);
+	CVAR_REGISTER(&sk_shield_regen_delay_broken2);
+	CVAR_REGISTER(&sk_shield_regen_delay_broken3);
+	CVAR_REGISTER(&sk_shield_regen_rate1);
+	CVAR_REGISTER(&sk_shield_regen_rate2);
+	CVAR_REGISTER(&sk_shield_regen_rate3);
 
 	// REGISTER CVARS FOR SKILL LEVEL STUFF
 	// Agrunt

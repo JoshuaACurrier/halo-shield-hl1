@@ -45,11 +45,26 @@ extern cvar_t sv_allowbunnyhopping;
 
 extern cvar_t sv_busters;
 
-// Halo-style regenerating shield
+// Halo-style regenerating shield (live values, settable via console)
 extern cvar_t shield_max;
 extern cvar_t shield_regen_delay;
 extern cvar_t shield_regen_delay_broken;
 extern cvar_t shield_regen_rate;
+
+// Halo-style shield: per-difficulty values (1=Easy, 2=Normal, 3=Hard).
+// RefreshSkillData copies the active row into the live cvars above on every map load.
+extern cvar_t sk_shield_max1;
+extern cvar_t sk_shield_max2;
+extern cvar_t sk_shield_max3;
+extern cvar_t sk_shield_regen_delay1;
+extern cvar_t sk_shield_regen_delay2;
+extern cvar_t sk_shield_regen_delay3;
+extern cvar_t sk_shield_regen_delay_broken1;
+extern cvar_t sk_shield_regen_delay_broken2;
+extern cvar_t sk_shield_regen_delay_broken3;
+extern cvar_t sk_shield_regen_rate1;
+extern cvar_t sk_shield_regen_rate2;
+extern cvar_t sk_shield_regen_rate3;
 
 // Engine Cvars
 inline cvar_t* g_psv_gravity;
