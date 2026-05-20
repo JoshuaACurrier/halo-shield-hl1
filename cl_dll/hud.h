@@ -25,6 +25,7 @@
 #define RGB_YELLOWISH 0x00FFA000 //255,160,0
 #define RGB_REDISH 0x00FF1010	 //255,160,0
 #define RGB_GREENISH 0x0000A000	 //0,160,0
+#define RGB_SHIELDCYAN 0x0040DCFF //64,220,255 — Halo-style shield cyan
 
 #include "common_types.h"
 #include "cl_dll.h"

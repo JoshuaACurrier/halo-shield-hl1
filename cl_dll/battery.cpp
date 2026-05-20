@@ -83,7 +83,10 @@ bool CHudBattery::Draw(float flTime)
 
 	rc.top += m_iHeight * ((float)(100 - (V_min(100, m_iBat))) * 0.01); // battery can go from 0 to 100 so * 0.01 goes from 0 to 1
 
-	UnpackRGB(r, g, b, RGB_YELLOWISH);
+	// Halo-style shield: cyan (not HEV yellow) and rendered above the healthbar
+	// instead of beside it. The CHudBattery panel is repurposed in this mod
+	// because the server stores shield value in pev->armorvalue.
+	UnpackRGB(r, g, b, RGB_SHIELDCYAN);
 
 	if (!gHUD.HasSuit())
 		return true;
@@ -112,12 +115,14 @@ bool CHudBattery::Draw(float flTime)
 
 	int iOffset = (m_prc1->bottom - m_prc1->top) / 6;
 
-	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2;
+	// Position the shield indicator one HUD row above the health indicator,
+	// at the same left margin so it reads as a stacked "shield over health".
+	y = ScreenHeight - gHUD.m_iFontHeight - gHUD.m_iFontHeight / 2 - (int)(gHUD.m_iFontHeight * 2.0f);
 
 	int width = (m_prc1->right - m_prc1->left);
 
-	// this used to just be ScreenWidth/5 (4 on Updated) but that caused real issues at higher resolutions. Instead, base it on the width of this sprite.
-	x = 3 * width;
+	// Match the health indicator's left margin (CrossWidth / 2 in health.cpp).
+	x = width / 2;
 
 	// make sure we have the right sprite handles
 	if (0 == m_hSprite1)

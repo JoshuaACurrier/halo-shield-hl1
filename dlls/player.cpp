@@ -415,7 +415,8 @@ bool CBasePlayer::TakeDamage(entvars_t* pevInflictor, entvars_t* pevAttacker, fl
 				if (!m_bShieldBroken)
 				{
 					m_bShieldBroken = true;
-					EMIT_SOUND(ENT(pev), CHAN_ITEM, "weapons/electro4.wav", 1, ATTN_NORM);
+					// HEV announcer "buzz, armor gone" — diegetic shield-break.
+					EMIT_SOUND_SUIT(ENT(pev), "!HEV_E1");
 				}
 			}
 		}
@@ -2658,7 +2659,12 @@ void CBasePlayer::PostThink()
 				if (pev->armorvalue >= flMax)
 				{
 					pev->armorvalue = flMax;
-					m_bShieldBroken = false;
+					if (m_bShieldBroken)
+					{
+						m_bShieldBroken = false;
+						// HEV announcer "fuzz, power restored" — recharge complete after a break.
+						EMIT_SOUND_SUIT(ENT(pev), "!HEV_D00");
+					}
 				}
 			}
 		}
