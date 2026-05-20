@@ -440,12 +440,16 @@ void WeaponsResource::SelectSlot(int iSlot, bool fAdvance, int iDirection)
 
 	if ((gpActiveSel == NULL) || (gpActiveSel == (WEAPON*)1) || (iSlot != gpActiveSel->iSlot))
 	{
-		PlaySound("common/wpn_hudon.wav", 1);
+		// HUD menu-click sounds are noise when the weapon switches instantly;
+		// only play them when fastswitch is off (i.e., the menu is actually shown).
+		if (!fastSwitch)
+			PlaySound("common/wpn_hudon.wav", 1);
 		p = GetFirstPos(iSlot);
 	}
 	else
 	{
-		PlaySound("common/wpn_moveselect.wav", 1);
+		if (!fastSwitch)
+			PlaySound("common/wpn_moveselect.wav", 1);
 		if (gpActiveSel)
 			p = GetNextActivePos(gpActiveSel->iSlot, gpActiveSel->iSlotPos);
 		if (!p)
@@ -1048,6 +1052,12 @@ void DrawAmmoBar(WEAPON* p, int x, int y, int width, int height)
 bool CHudAmmo::DrawWList(float flTime)
 {
 	int r, g, b, x, y, a, i;
+
+	// Halo Shield: skip the entire weapon-select menu draw when fastswitch
+	// is on. gpActiveSel still tracks cycling state for the next slot press,
+	// but the user never sees the picker overlay.
+	if (CVAR_GET_FLOAT("hud_fastswitch") != 0)
+		return false;
 
 	if (!gpActiveSel)
 		return false;
