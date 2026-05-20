@@ -72,7 +72,7 @@ cvar_t sk_shield_regen_rate3         = {"sk_shield_regen_rate3", "25.0"};
 // ads_speed_scale multiplies pev->maxspeed while ADS is active so movement
 // slows down with the zoom-in.
 cvar_t ads_fov         = {"ads_fov", "60"};
-cvar_t ads_speed_scale = {"ads_speed_scale", "0.6"};
+cvar_t ads_speed_scale = {"ads_speed_scale", "0.4"};
 cvar_t ads_zoom_speed  = {"ads_zoom_speed", "200"}; // FOV units / sec; tune for snappier vs smoother
 
 //CVARS FOR SKILL LEVEL SETTINGS
