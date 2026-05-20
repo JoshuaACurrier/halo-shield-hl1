@@ -1,4 +1,72 @@
-# About
+# Halo Shield
+
+A single-player mod for **Half-Life (1998, GoldSrc)** that grafts Halo-style combat and movement onto Gordon Freeman's adventure through Black Mesa. Targets the current Steam release of Half-Life (post-25th-anniversary build, App ID 70).
+
+This repository is a fork of [twhl-community/halflife-updated](https://github.com/twhl-community/halflife-updated) — the community-maintained Half-Life SDK. Almost everything you see is upstream code; the changes that make this *Halo Shield* live in a small set of files documented below.
+
+## Features
+
+- **Regenerating energy shield (Halo CE rules).** Damage hits the shield before health, the shield refills after a delay (longer when fully broken), and the system activates only after the HEV suit pickup in Chapter 2. Strength, regen rate, and both regen delays auto-scale with the game's Easy / Normal / Hard difficulty.
+- **Custom shield HUD + diegetic audio.** Shield indicator sits above the healthbar in Halo cyan. When the shield breaks, the HEV suit announces *"armor gone"*; when it fully recharges after a break, it announces *"power restored."*
+- **Inverted walk / run.** Default movement is a walk; hold Shift to sprint. The controls menu labels the binding *"Run"* to match. Strafe speed is ~10% tighter than forward/back so movement feels weighted.
+- **Instant weapon switching.** Number keys swap weapons immediately (no menu, no left-click confirm). Repeat-press a number to cycle through weapons in that slot. The scroll wheel cycles through all weapons. No menu-click sounds, no swallowed first-shot after a swap.
+- **Aim-down-sights.** Hold right mouse to focus in: smooth FOV zoom + movement slowdown. Works for any gun (glock, .357, MP5, shotgun, crossbow, RPG, gauss, egon, hornet gun); disabled for crowbar and the four throwable slot-5 weapons (hand grenade, tripmine, satchel, snark). Secondary fire (satchel detonator, crossbow scope, gauss charge, egon alt fire) is rebound to middle-mouse so all weapon behavior stays accessible.
+
+## Installing
+
+Build the DLLs from this source (see [BUILDING.md](BUILDING.md)) — the post-build step auto-installs them to `<Half-Life install>/halo_shield/`. Run `deploy.ps1` from a PowerShell prompt to push the static assets (mod manifest, HUD overrides, `userconfig.cfg`). Then restart Steam; *"Halo Shield"* appears in your library as a separate game.
+
+You will need the original Half-Life (App ID 70) installed — *not* Half-Life: Source (App ID 280), which is a different engine and isn't compatible.
+
+## Where the changes live
+
+Everything outside the files below is upstream Half-Life Updated code. The bulk of this mod is ~250 lines added across these files:
+
+| Area | Files |
+|---|---|
+| Shield mechanic + ADS state | `dlls/player.cpp`, `dlls/player.h` |
+| ADS commands (`+ads` / `-ads`) | `dlls/client.cpp` |
+| Cvars (shield + ADS + difficulty tiers) | `dlls/game.cpp`, `dlls/game.h` |
+| Difficulty → shield-value wiring | `dlls/gamerules.cpp` |
+| Shield HUD repositioning + cyan color | `cl_dll/battery.cpp`, `cl_dll/hud.h` |
+| Instant weapon switching | `cl_dll/ammo.cpp` |
+| Mod assets (manifest, configs, HUD label) | `mod/` — `liblist.gam`, `userconfig.cfg`, `gfx/shell/kb_act.lst` |
+| Build / deploy helpers | `deploy.ps1`, `filecopy.bat` (retargeted to `halo_shield`) |
+
+## Development tags
+
+Each shipped milestone has a git tag so you can diff against a known-good baseline:
+
+- **`phase-0-baseline`** — Clean Half-Life Updated build verified running as a mod folder. No gameplay changes from vanilla. Useful as a `git diff phase-0-baseline..HEAD` anchor to see exactly what this mod adds.
+- **`phase-2-mechanic`** — Shield absorbs damage before health, regenerates after a delay, longer regen when broken, gated on HEV pickup.
+- **`phase-3-polish`** — Shield indicator repositioned above healthbar in cyan; HEV announces *"armor gone"* / *"power restored."*
+- **`phase-4-difficulty`** — Difficulty scaling via 12 `sk_shield_*` cvars and `RefreshSkillData` wiring.
+
+The walk/run inversion, instant weapon switching, and ADS landed in subsequent commits on `master`.
+
+## Tuning cvars
+
+All of these are live-editable from the in-game console. Defaults shown.
+
+| Cvar | Default | What it does |
+|---|---|---|
+| `shield_max` | 100 | Max shield value (auto-set from `sk_shield_max1/2/3` on map load) |
+| `shield_regen_delay` | 5.0 | Seconds after damage before shield starts regenerating |
+| `shield_regen_delay_broken` | 10.0 | Longer delay when the shield was fully depleted on the last hit |
+| `shield_regen_rate` | 33.0 | Shield points per second while regenerating |
+| `ads_fov` | 60 | Focused FOV while aiming down sights (default FOV is 90) |
+| `ads_speed_scale` | 0.4 | Movement speed multiplier while in ADS |
+| `ads_zoom_speed` | 200 | FOV units per second for the ADS zoom-in/out animation |
+
+Per-difficulty shield values live in `sk_shield_max{1,2,3}`, `sk_shield_regen_delay{1,2,3}`, `sk_shield_regen_delay_broken{1,2,3}`, `sk_shield_regen_rate{1,2,3}` (suffix: 1 = Easy, 2 = Normal, 3 = Hard).
+
+## Acknowledgements
+
+Built on top of the [Half-Life Updated SDK](https://github.com/twhl-community/halflife-updated) maintained by the TWHL community. All the heavy lifting — the actual Half-Life game code, the bug fixes, the modern Visual Studio compatibility — is theirs. This mod just adds a focused gameplay layer on top. The full upstream README, license, and contributors list follows below.
+
+---
+
+# About the underlying SDK
 
 [Half-Life Updated](https://github.com/twhl-community/halflife-updated), [Opposing Force Updated](https://github.com/twhl-community/halflife-op4-updated) and [Blue Shift Updated](https://github.com/twhl-community/halflife-bs-updated) are repositories that provide updated versions of the Half-Life SDK, targeted to the 3 Half-Life 1 PC games officially available.
 
