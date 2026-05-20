@@ -442,19 +442,6 @@ void WeaponsResource::SelectSlot(int iSlot, bool fAdvance, int iDirection)
 	{
 		PlaySound("common/wpn_hudon.wav", 1);
 		p = GetFirstPos(iSlot);
-
-		if (p && fastSwitch) // check for fast weapon switch mode
-		{
-			// if fast weapon switch is on, then weapons can be selected in a single keypress
-			// but only if there is only one item in the bucket
-			WEAPON* p2 = GetNextActivePos(p->iSlot, p->iSlotPos);
-			if (!p2)
-			{ // only one active item in bucket, so change directly to weapon
-				ServerCmd(p->szName);
-				g_weaponselect = p->iId;
-				return;
-			}
-		}
 	}
 	else
 	{
@@ -473,9 +460,20 @@ void WeaponsResource::SelectSlot(int iSlot, bool fAdvance, int iDirection)
 			gpActiveSel = (WEAPON*)1;
 		else
 			gpActiveSel = NULL;
+		return;
 	}
-	else
-		gpActiveSel = p;
+
+	gpActiveSel = p;
+
+	// Halo Shield: with fast switch on, commit the selection immediately —
+	// even when the slot has multiple weapons. Repeat presses of the same
+	// slot rotate through that bucket because gpActiveSel is updated above,
+	// so the next call hits the "cycle within slot" branch.
+	if (fastSwitch)
+	{
+		ServerCmd(p->szName);
+		g_weaponselect = p->iId;
+	}
 }
 
 //------------------------------------------------------------------------
@@ -791,6 +789,13 @@ void CHudAmmo::UserCmd_NextWeapon()
 				if (wsp && gWR.HasAmmo(wsp))
 				{
 					gpActiveSel = wsp;
+					// Halo Shield: scroll-wheel forward commits immediately
+					// when fast switch is on.
+					if (CVAR_GET_FLOAT("hud_fastswitch") != 0)
+					{
+						ServerCmd(wsp->szName);
+						g_weaponselect = wsp->iId;
+					}
 					return;
 				}
 			}
@@ -832,6 +837,13 @@ void CHudAmmo::UserCmd_PrevWeapon()
 				if (wsp && gWR.HasAmmo(wsp))
 				{
 					gpActiveSel = wsp;
+					// Halo Shield: scroll-wheel back commits immediately
+					// when fast switch is on.
+					if (CVAR_GET_FLOAT("hud_fastswitch") != 0)
+					{
+						ServerCmd(wsp->szName);
+						g_weaponselect = wsp->iId;
+					}
 					return;
 				}
 			}
